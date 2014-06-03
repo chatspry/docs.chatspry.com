@@ -1,0 +1,492 @@
+FORMAT: 1A
+HOST: http://api.chatspry.com
+
+# Chatspry Public API
+      
+# Group Sessions
+For starting cookie based sessions with Chatspry. Use this if you're
+planning on implementing the Chatspry API in a web browser. Otherwise,
+please refer to our [**oAuth 2 API**](#oauth2).
+
+## Session [/v1/session]
+### Sign in and start a new session as a user [POST]
+Signing in successfully in will add a session cookie to the response
+which is used to determine who you are and authenticate you for further
+requests on the API.
+
++ Request (application/json)
+    
+    + Headers
+
+            Accept: application/json
+
+    + Body
+
+            {
+                "session" : {
+                    "identifier" : "zee",
+                    "passphrase" : "Passphrase1234!"
+                }
+            }
+
++ Response 201 (application/json)
+
+        {
+            "session" : {
+                "id": "28a2387d-f946-459f-82da-10754a29f36a",
+                "user": {
+                    "type" : "user"
+                    "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+                }
+            }
+            
+            "user": {
+                "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e",
+                "name" : "Philip Vieira",
+                "handle" : "zee",
+                "created_at" : 1370263044,
+                "updated_at" : 1401737216 
+            }
+        }
+        
+### Sign out and end the current session [DELETE]
+Signing out successfully termine session matching your secure session
+cookie derived from signing in.
++ Response 204
+
+# Group Users
+
+## User [/v1/user/{id}]
+A user is a person, someone who can be identified by a handle or a name and
+is the entity used to authenticate the API.
+
++ Parameters
+    + id (required, string, `38459979-e5f9-4c50-8bf6-8721bae33b4e`) ... The primary identifier of the user entity.
+
+
+### Register a new user [POST]
+An unauthenticated client can request new user being created. A successful
+user registration will also start a valid session responding with a session
+entity.
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+
+    + Body
+    
+            {
+                "client_secret" : "NUuRqWpbnKXK64Ja-eTSI",
+                "client_id" : "77ddf962-98a1-4cd7-88c4-5c6aaf861391",
+                "user" : {
+                    "name" : "Philip Vieira",
+                    "handle" : "zee",
+                    "passphrase" : "SecretPassphrase1234!"
+                }
+            }
+
++ Response 201 (application/json)
+
+        {
+            "user": {
+                "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e",
+                "name" : "Philip Vieira",
+                "handle" : "zee",
+                "created_at" : 1370263044,
+                "updated_at" : 1370263044 
+            }
+            
+            "session" : {
+                "id" : "28a2387d-f946-459f-82da-10754a29f36a",
+                "user": {
+                    "type" : "user"
+                    "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+                }
+            }
+        }
+
+
+### Get a currently existing user [GET]
+Any authenticated user can show any other user.
+
+**oAuth Scopes**: `public`
+
++ Request
+
+    + Headers
+
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e",
+                "name" : "Philip Vieira",
+                "handle" : "zee",
+                "created_at" : 1370263044,
+                "updated_at" : 1401737216 
+            }
+        }
+
+### Update a currently existing user [PATCH]
+Unless you're an admin, you can only update yourself.
+
+**oAuth Scopes**: `write_user`
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+    + Body
+
+            {
+                "user" : {
+                    "name" : "New Name",
+                    "handle" : "new_handle1"
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e",
+                "name" : "New Name",
+                "handle" : "new_handle1",
+                "created_at" : 1370263044,
+                "updated_at" : 1401737216 
+            }
+        }
+
+# Group Rooms
+## Room [/v1/room/{:id}]
+Think of the room as it is. A self-contained, measurable virtual space.
+A point of interest for people to intersect through activities. Rooms
+can be private, or public to anyone. If a room is locked, users need
+admission to enter.
+
++ Parameters
+    + id (required, string, `e22200f1-3fc0-451a-a733-40681bcbc91f`) ... Primary identifier of the room entity.
+
+### Set up a brand new room [PUT]
+Anyone with a valid access token can create a room.
+
+**oAuth Scopes**: `write_rooms`
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+    + Body
+
+            {
+                "room" : {
+                    "name" : "My Room",
+                    "description" : "I used to live here"
+                }
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "room" : {
+                "id" : "e22200f1-3fc0-451a-a733-40681bcbc91f",
+                "name" : "My Room",
+                "description" : "I live here",
+                "created_at" : 1370263044,
+                "updated_at" : 1401737216,
+                "creator" : {
+                    "type" : "user",
+                    "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+                }
+            }
+        }
+
+
+### Show a currently existing room [GET]
+Anyone with a valid access token can show a room unless it's hidden.
+Hidden rooms can only be shown for users who are part of, or have 
+been granted admission said room.
+
+**oAuth Scopes**: `read_rooms`
+
++ Request
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
++ Response 200 (application/json)
+
+        {
+            "room" : {
+                "id" : "e22200f1-3fc0-451a-a733-40681bcbc91f",
+                "name" : "My Room",
+                "description" : "I live here",
+                "created_at" : 1370263044,
+                "updated_at" : 1401737216,
+                "creator" : {
+                    "type" : "user",
+                    "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+                }
+            }
+        }
+
+### Update a currently existing room [PATCH]
+Only users with administrative powers in a room can perform updates.
+
+**oAuth Scopes**: `write_rooms`
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+    + Body
+
+            {
+                "room" : {
+                    "name" : "My old Room",
+                    "description" : "I used to live here"
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "room" : {
+                "id" : "e22200f1-3fc0-451a-a733-40681bcbc91f",
+                "name" : "My old Room",
+                "description" : "I used to live here",
+                "created_at" : 1401737216,
+                "updated_at" : 1401737216,
+                "creator" : {
+                    "type" : "user",
+                    "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+                }
+            }
+        }
+
+# Group Activities
+## Activity [/v1/activity]
+An activity is what someone is doing inside a room at a given point in time.
+
+- action
+    - exclamation – Saying something, eg: "Hello everyone!"
+    - gesture – Doing something, eg: "moves across the room and pokes Jane Doe"
+
+- expression
+    - happy
+    - excited
+    - tender
+    - scared 
+    - angry 
+    - sad
+
+### Do something in a room [POST]
+Only users that are part of a room can submit activities.
+
+**oAuth Scopes**: `write_activities`
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+    + Body
+
+            {
+                "room_id" : "e22200f1-3fc0-451a-a733-40681bcbc91f",
+                "activity" : {
+                    "id" : "59db2498-a86b-4487-bdd2-448cc35cb00f",
+                    "action" : "exclamation",
+                    "message" : "Optio non aspernatur quis.",
+                    "expression" : "happy"
+                }
+            }
+
++ Response 201
+
+# Group Admissions
+## Admission [/v1/admission]
+Admission is a user's right to being a part of a room. Admission only
+matters if a room is locked. Users that became part of a room before
+the room was locked will not need admission unless they leave or get
+kicked from the room.
+
+### Grant user admission to a room [POST]
+Admissions to a room can only be signed by users who posess
+administrative powers inside a room. When admission is signed,
+the user's able to join the room.
+
+**oAuth Scopes**: `write_admissions`
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+    + Body
+
+            {
+                "room_id" : "e22200f1-3fc0-451a-a733-40681bcbc91f",
+                "user_id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e",
+                "admission": {
+                    "detail" : "Would you like to come and chill with me in my room?"
+                }
+            }
+
++ Response 201 (application/json)
+
+        {
+            "admission": {
+                "0f41b840-56ae-417b-bb44-b099273ce50c",
+                "detail" : "Would you like to come and chill with me in my room?"
+                "room" : {
+                    "type" : "room",
+                    "id" : "e22200f1-3fc0-451a-a733-40681bcbc91f"
+                },
+                "user" : {
+                    "type" : "user",
+                    "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+                }
+            }
+        }
+
+### Revoke a user's admission to a room [DELETE]
+Admissions to a room can only be revoked by users who possess
+administrative powers in said room. When the admission is revoked,
+that user will no longer be able to join the room. The user will
+not be removed if it has already excercised the admission and is
+already a part of the room.
+
+**oAuth Scopes**: `write_admissions`
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+    + Body
+    
+            {
+                "room_id" : "e22200f1-3fc0-451a-a733-40681bcbc91f",
+                "user_id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+            }
+        
++ Response 204
+
+# Group Roomies
+## Roomie [/v1/roomie]
+A roomie is someone, a user, who is part of a room. Users are freely
+able to submit activities to room they are a part of.
+
+### Put user inside a room [POST]
+You are able to put yourself inside a room with free admission or where
+admission has already been granted by one of the room's administrators.
+You cannot put anyone but yourself yourself inside of a room.
+
+**oAuth Scopes**: `write_parts`
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+    + Body
+
+            {
+                "room_id" : "e22200f1-3fc0-451a-a733-40681bcbc91f",
+                "user_id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "part": {
+                "0f41b840-56ae-417b-bb44-b099273ce50c",
+                "room" : {
+                    "type" : "room",
+                    "id" : "e22200f1-3fc0-451a-a733-40681bcbc91f"
+                },
+                "user" : {
+                    "type" : "user",
+                    "id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+                }
+            }
+        }
+
+### Remove user from a room [DELETE]
+You are able to remove yourself and leave a room. You can remove other
+people from a room you have admistrative powers in.
+
+**oAuth Scopes**: `write_parts`
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer 4327dc71be895cacf6b80795a626dd8bdf3873c0b51238fda44c895834eb1666
+
+    + Body
+
+            {
+                "room_id" : "e22200f1-3fc0-451a-a733-40681bcbc91f",
+                "user_id" : "38459979-e5f9-4c50-8bf6-8721bae33b4e"
+            }
+            
++ Response 204
+
+# Group oAuth 2
+## Token [/v1/oauth/token]
+### Issue a new Access Token [POST]
++ Request (application/json)
+
+        {}
+        
++ Response 200 (application/json)
+
+        {}
+
+## Token [/v1/oauth/revoke]
+### Request revocation of an already issued Access Token [POST]
++ Request (application/json)
+
+        {}
+        
++ Response 200 (application/json)
+
+        {}
+
+## Token Info [/v1/oauth/token/info]
+### Show information about an Access Token [POST]
++ Request (application/json)
+
+        {}
+        
++ Response 200 (application/json)
+
+        {}
